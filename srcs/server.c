@@ -6,7 +6,7 @@
 /*   By: eshana <eshana@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/08 14:19:08 by eshana            #+#    #+#             */
-/*   Updated: 2021/09/12 16:06:11 by eshana           ###   ########.fr       */
+/*   Updated: 2021/09/13 10:51:52 by eshana           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ static void	ft_sig_handler(int sig, siginfo_t *si, void *context)
 {
 	static int	bits;
 	static int	byte;
+	static int	pid;
 
 	(void)context;
 	if (sig == SIGUSR1)
@@ -27,8 +28,9 @@ static void	ft_sig_handler(int sig, siginfo_t *si, void *context)
 		bits = 0;
 		byte = 0;
 	}
-	kill(si->si_pid, SIGUSR1);
-	return ;
+	if (si->si_pid != 0)
+		pid = si->si_pid;
+	kill(pid, SIGUSR1);
 }
 
 int	main(void)
@@ -49,9 +51,6 @@ int	main(void)
 	sigaction(SIGUSR1, &act, 0);
 	sigaction(SIGUSR2, &act, 0);
 	while (1)
-	{
 		pause();
-		ft_putstr_fd(" sig ", 1);
-	}
 	exit(EXIT_SUCCESS);
 }

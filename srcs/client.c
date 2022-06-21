@@ -6,7 +6,7 @@
 /*   By: eshana <eshana@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/08 14:19:16 by eshana            #+#    #+#             */
-/*   Updated: 2021/09/12 16:21:55 by eshana           ###   ########.fr       */
+/*   Updated: 2021/09/16 11:27:44 by eshana           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,21 @@
 
 static int	g_confirm;
 
-static void	ft_send_byte(char c, int pid)
+static void	ft_print_res(int sent, int received)
+{
+	ft_putnbr_fd(sent, 1);
+	ft_putstr_fd(" bits sent / ", 1);
+	ft_putnbr_fd(received, 1);
+	ft_putstr_fd(" confirmations received\n", 1);
+	if (sent != received)
+	{
+		ft_putstr_fd("Error: Server doesn't respond\n", 2);
+		exit(EXIT_FAILURE);
+	}
+	ft_putstr_fd("SUCCESS!\n", 1);
+}
+
+static void	ft_send_byte(char c, int pid, int cnt)
 {
 	int	i;
 	int	tmp;
@@ -28,13 +42,12 @@ static void	ft_send_byte(char c, int pid)
 		else
 			kill(pid, SIGUSR2);
 		if (tmp == g_confirm)
-			sleep(1);
+			usleep(20000);
+		i++;
 		if (tmp == g_confirm)
 		{
-			ft_putstr_fd("\nError: Server doesn't respond\n", 2);
-			exit(EXIT_FAILURE);
+			ft_print_res(cnt * 8 + i, g_confirm);
 		}
-		i++;
 	}
 }
 
@@ -76,14 +89,10 @@ int	main(int argc, char **argv)
 		}
 		while (argv[2][i])
 		{
-			ft_send_byte(argv[2][i], server_pid);
+			ft_send_byte(argv[2][i], server_pid, i);
 			i++;
 		}
-		ft_putstr_fd("\nYour message has been sent.\n", 1);
-		ft_putnbr_fd(i * 8, 1);
-		ft_putstr_fd(" / ", 1);
-		ft_putnbr_fd(g_confirm, 1);
-		ft_putstr_fd("\n", 1);
+		ft_print_res(i * 8, g_confirm);
 		exit(EXIT_SUCCESS);
 	}
 	ft_putstr_fd("Error: Invalid arguments.\nUsage: ./client PID message\n", 2);
